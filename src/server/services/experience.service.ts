@@ -1,5 +1,7 @@
 import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
 import type { ExperienceType, Prisma } from "@/generated/prisma/client";
+import { CACHE_TAGS } from "../cache-tags";
 import { db } from "../db";
 
 const experienceInclude = {
@@ -11,7 +13,11 @@ export type ExperienceWithSkills = Prisma.ExperienceGetPayload<{
 }>;
 
 /** Expériences et formations, de la plus récente à la plus ancienne. */
-export function listExperiences(type?: ExperienceType) {
+export async function listExperiences(type?: ExperienceType) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.experiences, CACHE_TAGS.skills);
+
   return db.experience.findMany({
     where: type ? { type } : undefined,
     include: experienceInclude,

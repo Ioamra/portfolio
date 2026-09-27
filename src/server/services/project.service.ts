@@ -1,5 +1,7 @@
 import "server-only";
+import { cacheLife, cacheTag } from "next/cache";
 import type { Prisma } from "@/generated/prisma/client";
+import { CACHE_TAGS } from "../cache-tags";
 import { db } from "../db";
 
 const skillSelect = {
@@ -26,18 +28,28 @@ const publishedOrder = [
   { createdAt: "desc" },
 ] satisfies Prisma.ProjectOrderByWithRelationInput[];
 
-export function listPublishedProjects(filter: { skillId?: string } = {}) {
+// Les compétences liées font partie du résultat : on étiquette aussi avec "skills"
+// pour qu'un renommage de compétence se répercute sur les projets.
+function tagProjects() {
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.projects, CACHE_TAGS.skills);
+}
+
+export async function listPublishedProjects() {
+  "use cache";
+  tagProjects();
+
   return db.project.findMany({
-    where: {
-      published: true,
-      ...(filter.skillId && { skills: { some: { id: filter.skillId } } }),
-    },
+    where: { published: true },
     include: projectCardInclude,
     orderBy: publishedOrder,
   });
 }
 
-export function listFeaturedProjects(limit = 3) {
+export async function listFeaturedProjects(limit = 3) {
+  "use cache";
+  tagProjects();
+
   return db.project.findMany({
     where: { published: true, featured: true },
     include: projectCardInclude,
@@ -46,7 +58,10 @@ export function listFeaturedProjects(limit = 3) {
   });
 }
 
-export function getPublishedProjectBySlug(slug: string) {
+export async function getPublishedProjectBySlug(slug: string) {
+  "use cache";
+  tagProjects();
+
   return db.project.findFirst({
     where: { slug, published: true },
     include: projectDetailInclude,
@@ -54,6 +69,9 @@ export function getPublishedProjectBySlug(slug: string) {
 }
 
 export async function listPublishedProjectSlugs() {
+  "use cache";
+  tagProjects();
+
   const projects = await db.project.findMany({
     where: { published: true },
     select: { slug: true },
