@@ -41,6 +41,7 @@ src/
     ui/                composants shadcn/ui (générés, modifier avec parcimonie)
     ...                composants applicatifs
   server/              code serveur uniquement (import "server-only")
+    env.ts             variables d'environnement validées par Zod
     db.ts              client Prisma singleton
     auth.ts            config Better Auth
     mail.ts            envoi de mails
@@ -51,6 +52,29 @@ src/
 e2e/                   tests Playwright
 docker-compose.yml     dev : postgres, postgres de test, mailpit
 ```
+
+## Démarrage en local
+
+```bash
+docker compose up -d   # db (port 5434), db-test (5433), mailpit (SMTP 1025, UI http://localhost:8025)
+cp .env.example .env
+npm install            # lance aussi prisma generate
+npm run db:migrate     # applique les migrations
+npm run db:seed        # données de démo
+npm run dev
+```
+
+Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de données), `lint`, `format`.
+
+## Base de données
+
+- Prisma **7** avec le driver adapter `@prisma/adapter-pg` ; client généré dans `src/generated/prisma` (ignoré par Git), import via `@/generated/prisma/client`.
+- Versions Prisma **épinglées** (`prisma`, `@prisma/client`, `@prisma/adapter-pg` identiques) : le tag npm `latest` a pointé vers une RC 8.x incompatible.
+- `prisma init` télécharge des « skills » d'agents (`.agents/`, `.claude/`, `.windsurf/`) : ne pas les committer.
+- Le port 5432 est pris par un PostgreSQL local sur la machine de dev, d'où le 5434.
+- Contraintes non exprimables en Prisma (ex. `CHECK`) : migration créée avec `prisma migrate dev --create-only` puis SQL écrit à la main.
+- `profile` est une table à ligne unique (id = 1, contrainte `profile_singleton`).
+- `prisma/seed.ts` tourne hors de Next : il instancie son propre client et ne doit rien importer de `src/server` (`server-only`).
 
 ## Conventions
 
