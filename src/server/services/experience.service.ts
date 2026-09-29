@@ -21,6 +21,7 @@ export async function listExperiences(type?: ExperienceType) {
   return db.experience.findMany({
     where: type ? { type } : undefined,
     include: experienceInclude,
-    orderBy: { startDate: "desc" },
+    // Fin la plus récente d'abord (en cours = en tête), puis début le plus récent.
+    orderBy: [{ endDate: { sort: "desc", nulls: "first" } }, { startDate: "desc" }],
   });
 }

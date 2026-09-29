@@ -1,6 +1,7 @@
 import type { ExperienceType, ProjectKind, SkillCategory } from "@/generated/prisma/enums";
 
 export const SKILL_CATEGORY_LABELS: Record<SkillCategory, string> = {
+  LANGUAGE: "Langages",
   BACKEND: "Back-end",
   FRONTEND: "Front-end",
   DATABASE: "Base de données",

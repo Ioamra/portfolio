@@ -1,6 +1,6 @@
 import { ClockIcon, MapPinIcon } from "lucide-react";
 import type { Metadata } from "next";
-import { GithubIcon } from "@/components/icons";
+import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { PageTransition } from "@/components/page-transition";
 import { SectionHeading } from "@/components/section-heading";
 import { getProfile } from "@/server/services/profile.service";
@@ -47,6 +47,17 @@ export default async function ContactPage() {
               >
                 <GithubIcon className="mt-0.5 size-4 shrink-0 text-primary" />
                 Mon GitHub
+              </a>
+            )}
+            {profile.linkedinUrl && (
+              <a
+                href={profile.linkedinUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start gap-3 text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <LinkedinIcon className="mt-0.5 size-4 shrink-0 text-primary" />
+                Mon LinkedIn
               </a>
             )}
           </aside>

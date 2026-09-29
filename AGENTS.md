@@ -73,6 +73,7 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 - `prisma init` télécharge des « skills » d'agents (`.agents/`, `.claude/`, `.windsurf/`) : ne pas les committer.
 - Le port 5432 est pris par un PostgreSQL local sur la machine de dev, d'où le 5434.
 - Contraintes non exprimables en Prisma (ex. `CHECK`) : migration créée avec `prisma migrate dev --create-only` puis SQL écrit à la main.
+- `prisma migrate dev` refuse de tourner hors terminal interactif quand une migration supprime des données. Contournement : créer le dossier `prisma/migrations/<horodatage>_<nom>/`, y écrire la sortie de `prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script`, puis `prisma migrate deploy`.
 - `profile` est une table à ligne unique (id = 1, contrainte `profile_singleton`).
 - `prisma/seed.ts` tourne hors de Next : il instancie son propre client et ne doit rien importer de `src/server` (`server-only`).
 
@@ -90,7 +91,9 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 - Pas de `filter`/`backdrop-filter`/`overflow-hidden` entre une `TiltCard` et les enfants en `translateZ` : ça aplatit le relief 3D.
 - `<meta name="darkreader-lock">` dans le layout racine : empêche l'extension Dark Reader de modifier le DOM (erreurs d'hydratation).
 - Protection de `/admin` : vérification de session côté serveur dans le layout admin **et** dans chaque Server Action (ne jamais se fier uniquement au middleware/proxy).
-- Fichiers uploadés (images, CV) stockés sur disque dans un dossier monté en volume Docker, jamais en base.
+- Fichiers uploadés (images, CV) stockés sur disque dans `STORAGE_DIR` (défaut `storage/`, ignoré par Git, volume Docker en prod), jamais en base ni dans le repo. Accès via `server/storage.ts` (protège contre les chemins qui sortent du dossier). Le CV contient des données personnelles : **ne jamais le committer**.
+- CV téléchargeable via la route `GET /cv` (`app/cv/route.ts`, dynamique via `connection()`), nom de fichier dérivé du nom du profil. Le seed ne référence `cv/cv.pdf` que si le fichier existe dans le stockage.
+- Aucune donnée personnelle sensible (adresse, téléphone, date de naissance) sur les pages du site.
 - Formulaire de contact (`app/(public)/contact`, action `server/actions/contact.action.ts`) : champ piège `website` (rempli = faux succès, rien n'est enregistré), limite de 3 messages / 10 min / IP en mémoire (`server/rate-limit.ts`, valable pour une seule instance). Le message est **d'abord enregistré en base**, puis envoyé par mail en texte brut avec `replyTo` = l'expéditeur ; un échec SMTP est journalisé sans faire échouer l'envoi.
 - Validation côté serveur uniquement (`noValidate`), schémas Zod dans `lib/validation/`, messages en français.
 - Next insère un `role="alert"` (annonceur de route) : dans les tests, cibler les alertes par leur texte.

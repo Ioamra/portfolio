@@ -19,6 +19,9 @@ const envSchema = z.object({
   MAIL_FROM: z.string().min(1),
   /** Adresse qui reçoit les messages du formulaire de contact. */
   MAIL_TO: z.email(),
+
+  /** Dossier des fichiers uploadés (CV, images), hors du dépôt Git. */
+  STORAGE_DIR: z.string().min(1).default("storage"),
 });
 
 export const env = envSchema.parse(process.env);

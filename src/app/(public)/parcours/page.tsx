@@ -1,4 +1,5 @@
-import { DownloadIcon } from "lucide-react";
+import { CheckIcon, DownloadIcon } from "lucide-react";
+import { Markdown } from "@/components/markdown";
 import type { Metadata } from "next";
 import { PageTransition } from "@/components/page-transition";
 import { SectionHeading } from "@/components/section-heading";
@@ -58,6 +59,22 @@ export default async function CareerPage() {
           </h2>
           <SkillsByCategory />
         </section>
+
+        {profile.strengths.length > 0 && (
+          <section className="reveal" aria-labelledby="section-savoir-faire">
+            <h2 id="section-savoir-faire" className="mb-6 text-xl font-semibold tracking-tight">
+              Savoir-faire
+            </h2>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {profile.strengths.map((strength) => (
+                <li key={strength} className="flex gap-3 rounded-lg border bg-card p-4 text-sm">
+                  <CheckIcon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                  {strength}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </PageTransition>
   );
@@ -76,11 +93,14 @@ function Timeline({ items }: { items: ExperienceWithSkills[] }) {
             {formatPeriod(item.startDate, item.endDate)}
           </p>
           <h3 className="mt-1 font-semibold">{item.title}</h3>
-          <p className="text-sm text-muted-foreground">
-            {item.organization}
-            {item.location && ` · ${item.location}`}
-          </p>
-          <p className="mt-2 max-w-2xl">{item.description}</p>
+          {(item.organization || item.location) && (
+            <p className="text-sm text-muted-foreground">
+              {[item.organization, item.location].filter(Boolean).join(" · ")}
+            </p>
+          )}
+          <Markdown className="prose-sm mt-2 max-w-2xl prose-p:my-0 prose-ul:my-0">
+            {item.description}
+          </Markdown>
           <SkillList skills={item.skills} className="mt-3" />
         </li>
       ))}

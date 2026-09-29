@@ -11,6 +11,7 @@ datasource db {
 }
 
 enum SkillCategory {
+  LANGUAGE
   BACKEND
   FRONTEND
   DATABASE
@@ -39,6 +40,9 @@ model Profile {
   /// Texte libre affiché en accueil, ex. « Disponible immédiatement ». Null = masqué.
   availability String?  @db.VarChar(150)
   githubUrl    String?  @map("github_url") @db.VarChar(255)
+  linkedinUrl  String?  @map("linkedin_url") @db.VarChar(255)
+  /// Savoir-faire transverses (analyse des besoins, modélisation…).
+  strengths    String[] @default([])
   /// Chemin du CV PDF dans le stockage de fichiers.
   cvPath       String?  @map("cv_path") @db.VarChar(255)
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -105,8 +109,8 @@ model Experience {
   type         ExperienceType
   /// Intitulé du poste ou du diplôme.
   title        String         @db.VarChar(150)
-  /// Entreprise ou établissement.
-  organization String         @db.VarChar(150)
+  /// Entreprise ou établissement (facultatif, ex. diplôme sans établissement précisé).
+  organization String?        @db.VarChar(150)
   location     String?        @db.VarChar(100)
   startDate    DateTime       @map("start_date") @db.Date
   /// Null = en cours.
