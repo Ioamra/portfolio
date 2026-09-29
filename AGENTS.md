@@ -91,7 +91,9 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 - `<meta name="darkreader-lock">` dans le layout racine : empêche l'extension Dark Reader de modifier le DOM (erreurs d'hydratation).
 - Protection de `/admin` : vérification de session côté serveur dans le layout admin **et** dans chaque Server Action (ne jamais se fier uniquement au middleware/proxy).
 - Fichiers uploadés (images, CV) stockés sur disque dans un dossier monté en volume Docker, jamais en base.
-- Formulaire de contact : champ honeypot + rate limiting ; le message est enregistré en base puis envoyé par mail.
+- Formulaire de contact (`app/(public)/contact`, action `server/actions/contact.action.ts`) : champ piège `website` (rempli = faux succès, rien n'est enregistré), limite de 3 messages / 10 min / IP en mémoire (`server/rate-limit.ts`, valable pour une seule instance). Le message est **d'abord enregistré en base**, puis envoyé par mail en texte brut avec `replyTo` = l'expéditeur ; un échec SMTP est journalisé sans faire échouer l'envoi.
+- Validation côté serveur uniquement (`noValidate`), schémas Zod dans `lib/validation/`, messages en français.
+- Next insère un `role="alert"` (annonceur de route) : dans les tests, cibler les alertes par leur texte.
 - Nommage : code en anglais, contenu, routes et libellés UI en français.
 - Accessibilité : contrastes valides dans les deux thèmes, navigation clavier, `alt` sur toutes les images.
 

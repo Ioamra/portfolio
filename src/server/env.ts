@@ -9,6 +9,16 @@ import { z } from "zod";
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.url(),
+
+  SMTP_HOST: z.string().min(1),
+  SMTP_PORT: z.coerce.number().int().positive(),
+  // Vides en dev (Mailpit n'exige pas d'authentification).
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  /** Expéditeur des mails, ex. "Portfolio <no-reply@mondomaine.fr>". */
+  MAIL_FROM: z.string().min(1),
+  /** Adresse qui reçoit les messages du formulaire de contact. */
+  MAIL_TO: z.email(),
 });
 
 export const env = envSchema.parse(process.env);
