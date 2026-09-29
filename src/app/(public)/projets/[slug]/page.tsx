@@ -11,6 +11,7 @@ import { ButtonLink } from "@/components/button-link";
 import { projectTitleTransitionName } from "@/components/project-card";
 import { ViewTransition } from "react";
 import { PROJECT_KIND_LABELS } from "@/lib/labels";
+import { mediaUrl } from "@/lib/media";
 import {
   getPublishedProjectBySlug,
   listPublishedProjectSlugs,
@@ -87,7 +88,11 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
 
         {cover && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover.path} alt={cover.alt} className="mt-10 w-full rounded-xl border" />
+          <img
+            src={mediaUrl(cover.path)}
+            alt={cover.alt}
+            className="mt-10 w-full rounded-xl border"
+          />
         )}
 
         <Markdown className="mt-10">{project.content}</Markdown>
@@ -96,7 +101,12 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
           <section className="mt-12 grid gap-4 sm:grid-cols-2" aria-label="Captures d'écran">
             {gallery.map((image) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={image.id} src={image.path} alt={image.alt} className="rounded-lg border" />
+              <img
+                key={image.id}
+                src={mediaUrl(image.path)}
+                alt={image.alt}
+                className="rounded-lg border"
+              />
             ))}
           </section>
         )}

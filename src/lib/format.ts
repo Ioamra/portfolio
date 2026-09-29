@@ -13,3 +13,19 @@ export function formatMonthYear(date: Date) {
 export function formatPeriod(start: Date, end: Date | null) {
   return `${formatMonthYear(start)} — ${end ? formatMonthYear(end) : "aujourd'hui"}`;
 }
+
+// Horodatages (messages) : affichés à l'heure de Paris, quel que soit le fuseau du serveur.
+const dateTime = new Intl.DateTimeFormat("fr-FR", {
+  dateStyle: "short",
+  timeStyle: "short",
+  timeZone: "Europe/Paris",
+});
+
+export function formatDateTime(date: Date) {
+  return dateTime.format(date);
+}
+
+/** Valeur d'un <input type="month"> ("2024-09") à partir d'une date @db.Date. */
+export function toMonthInputValue(date: Date | null) {
+  return date ? date.toISOString().slice(0, 7) : "";
+}

@@ -22,6 +22,11 @@ const envSchema = z.object({
 
   /** Dossier des fichiers uploadés (CV, images), hors du dépôt Git. */
   STORAGE_DIR: z.string().min(1).default("storage"),
+
+  /** Secret de chiffrement des sessions (32 caractères minimum). */
+  BETTER_AUTH_SECRET: z.string().min(32),
+  /** URL publique du site, ex. https://ioamra-monchau.fr */
+  BETTER_AUTH_URL: z.url(),
 });
 
 export const env = envSchema.parse(process.env);

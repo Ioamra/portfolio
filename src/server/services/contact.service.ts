@@ -19,3 +19,17 @@ export async function submitContactMessage(input: ContactInput) {
 
   return message;
 }
+
+// --- Admin -----------------------------------------------------------------
+
+export function listContactMessages() {
+  return db.contactMessage.findMany({ orderBy: { createdAt: "desc" } });
+}
+
+export function setMessageRead(id: string, read: boolean) {
+  return db.contactMessage.update({ where: { id }, data: { readAt: read ? new Date() : null } });
+}
+
+export function deleteContactMessage(id: string) {
+  return db.contactMessage.delete({ where: { id } });
+}

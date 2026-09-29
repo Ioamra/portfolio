@@ -5,6 +5,7 @@ import { SkillList } from "@/components/skill-list";
 import { TiltCard } from "@/components/tilt-card";
 import { Badge } from "@/components/ui/badge";
 import { PROJECT_KIND_LABELS } from "@/lib/labels";
+import { mediaUrl } from "@/lib/media";
 import type { ProjectCard as ProjectCardData } from "@/server/services/project.service";
 
 export function projectTitleTransitionName(slug: string) {
@@ -18,10 +19,10 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
     <TiltCard className="h-full rounded-xl" maxTilt={5}>
       <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border bg-card transition-colors hover:border-primary/50">
         {cover && (
-          // Les images uploadées seront servies par l'app (étape admin) : balise img simple pour l'instant.
+          // Images servies par la route /media (stockage local) : balise img simple, sans next/image.
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={cover.path}
+            src={mediaUrl(cover.path)}
             alt={cover.alt}
             className="aspect-video w-full border-b object-cover"
           />

@@ -15,7 +15,7 @@ Le repo GitHub est public et sert lui-même de démonstration technique : la qua
 | Framework | Next.js (App Router), full-stack — pas de back séparé |
 | Langage | TypeScript strict (obligatoire, pas de `any`) |
 | Style | Tailwind CSS + shadcn/ui, thème clair/sombre via `next-themes` |
-| Animations | Motion (ex-Framer Motion), discrètes |
+| Animations | Sans bibliothèque : canvas 2D, CSS, View Transitions de React |
 | BDD | PostgreSQL |
 | ORM | Prisma (schéma dans `prisma/schema.prisma`, migrations versionnées) |
 | Validation | Zod (schémas partagés formulaires ↔ serveur) |
@@ -35,8 +35,11 @@ prisma/
 src/
   app/
     (public)/          pages publiques : /, /projets, /projets/[slug], /parcours, /contact, /mentions-legales
-    admin/             back-office protégé : login, projets, expériences, compétences, profil, messages, CV
-    api/               route handlers (auth, fichiers uploadés)
+    admin/connexion/   page de connexion
+    admin/(protected)/ back-office : tableau de bord, profil & CV, projets (+ images), parcours, compétences, messages
+    api/auth/          routes Better Auth
+    cv/                GET /cv : téléchargement du CV
+    media/             GET /media/projects/... : images des projets
   components/
     ui/                composants shadcn/ui (générés, modifier avec parcimonie)
     ...                composants applicatifs
@@ -44,11 +47,17 @@ src/
     env.ts             variables d'environnement validées par Zod
     db.ts              client Prisma singleton
     auth.ts            config Better Auth
+    auth-guard.ts      requireAdminPage() / requireAdminAction()
+    storage.ts         accès au dossier de stockage (anti path traversal)
+    uploads.ts         envoi de fichiers : taille, type réel (octets), écriture
     mail.ts            envoi de mails
     services/          logique métier + requêtes Prisma (équivalent des services NestJS)
-    actions/           Server Actions : fines, elles orchestrent seulement
+    actions/           Server Actions : fines, elles orchestrent seulement (admin/ : une par domaine)
   lib/
-    validation/        schémas Zod
+    validation/        schémas Zod (contact, admin)
+    form-state.ts      type FormState + parseFormData() partagés par les actions
+scripts/
+  create-admin.ts      création du compte admin / changement de mot de passe
 e2e/                   tests Playwright
 docker-compose.yml     dev : postgres, postgres de test, mailpit
 ```
@@ -60,8 +69,9 @@ docker compose up -d   # db (port 5434), db-test (5433), mailpit (SMTP 1025, UI 
 cp .env.example .env
 npm install            # lance aussi prisma generate
 npm run db:migrate     # applique les migrations
-npm run db:seed        # données de démo
-npm run dev
+npm run db:seed        # contenu initial (repris du CV)
+npm run admin:create -- <email> "<Nom>"   # compte admin (mot de passe demandé)
+npm run dev            # admin : http://localhost:3000/admin
 ```
 
 Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de données), `lint`, `format`.
@@ -99,6 +109,18 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 - Next insère un `role="alert"` (annonceur de route) : dans les tests, cibler les alertes par leur texte.
 - Nommage : code en anglais, contenu, routes et libellés UI en français.
 - Accessibilité : contrastes valides dans les deux thèmes, navigation clavier, `alt` sur toutes les images.
+
+## Admin
+
+- Auth : Better Auth, e-mail + mot de passe, **inscription désactivée** (`disableSignUp`). Le compte unique est créé par `scripts/create-admin.ts` (instance Better Auth dédiée où l'inscription est permise) ; relancer le script avec la même adresse change le mot de passe et ferme les sessions.
+- Tables `users`, `sessions`, `accounts`, `verifications` : champs imposés par Better Auth (voir `getAuthTables()`).
+- Limite de connexion : 5 essais / minute / IP (`rateLimit.customRules`), IP lue dans `cf-connecting-ip`.
+- Garde : le layout `admin/(protected)` vérifie la session dans un composant sous `<Suspense>` ; **chaque** Server Action admin commence par `await requireAdminAction()`. Pas de `proxy.ts`.
+- `export const instant = false` sur le layout protégé : l'admin est rendu à chaque requête (la nav lit `usePathname()`).
+- Lectures admin **sans cache** (`list…ForAdmin`, `get…ForAdmin`) : l'admin voit les brouillons et l'état réel. Les mutations appellent `updateTag` sur les tags publics concernés ; les messages (jamais publics) utilisent `refresh()`.
+- Formulaires admin : `<AdminForm>` soumet via `onSubmit` + `startTransition` (pas `<form action>`, qui viderait les champs en cas d'erreur) ; erreurs par champ transmises aux `<FormField>` par contexte.
+- Erreurs métier : `ConflictError(field)` (contrainte d'unicité) traduite en erreur de champ par `toErrorState()`.
+- Fichiers : 5 Mo max (`serverActions.bodySizeLimit: "6mb"`), type vérifié sur les premiers octets (JPEG/PNG/WebP, PDF). Images : `projects/<id>/<uuid>.<ext>`, servies par `/media` avec cache long (noms jamais réutilisés). Suppression d'un projet = suppression de son dossier.
 
 ## Tests
 

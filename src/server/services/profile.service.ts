@@ -1,5 +1,6 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
+import type { ProfileInput } from "@/lib/validation/admin";
 import { CACHE_TAGS } from "../cache-tags";
 import { db } from "../db";
 
@@ -12,4 +13,18 @@ export async function getProfile() {
   cacheTag(CACHE_TAGS.profile);
 
   return db.profile.findUniqueOrThrow({ where: { id: PROFILE_ID } });
+}
+
+// --- Admin -----------------------------------------------------------------
+
+export function getProfileForAdmin() {
+  return db.profile.findUniqueOrThrow({ where: { id: PROFILE_ID } });
+}
+
+export function updateProfile(input: ProfileInput) {
+  return db.profile.update({ where: { id: PROFILE_ID }, data: input });
+}
+
+export function setCvPath(cvPath: string | null) {
+  return db.profile.update({ where: { id: PROFILE_ID }, data: { cvPath } });
 }

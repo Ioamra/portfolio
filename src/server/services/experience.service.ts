@@ -1,6 +1,7 @@
 import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import type { ExperienceType, Prisma } from "@/generated/prisma/client";
+import type { ExperienceInput } from "@/lib/validation/admin";
 import { CACHE_TAGS } from "../cache-tags";
 import { db } from "../db";
 
@@ -24,4 +25,43 @@ export async function listExperiences(type?: ExperienceType) {
     // Fin la plus récente d'abord (en cours = en tête), puis début le plus récent.
     orderBy: [{ endDate: { sort: "desc", nulls: "first" } }, { startDate: "desc" }],
   });
+}
+
+// --- Admin -----------------------------------------------------------------
+
+export function listExperiencesForAdmin() {
+  return db.experience.findMany({
+    include: experienceInclude,
+    orderBy: [
+      { type: "asc" },
+      { endDate: { sort: "desc", nulls: "first" } },
+      { startDate: "desc" },
+    ],
+  });
+}
+
+export function getExperienceForAdmin(id: string) {
+  return db.experience.findUnique({
+    where: { id },
+    include: { skills: { select: { id: true } } },
+  });
+}
+
+export type ExperienceForAdmin = NonNullable<Awaited<ReturnType<typeof getExperienceForAdmin>>>;
+
+export function createExperience({ skillIds, ...fields }: ExperienceInput) {
+  return db.experience.create({
+    data: { ...fields, skills: { connect: skillIds.map((id) => ({ id })) } },
+  });
+}
+
+export function updateExperience(id: string, { skillIds, ...fields }: ExperienceInput) {
+  return db.experience.update({
+    where: { id },
+    data: { ...fields, skills: { set: skillIds.map((id) => ({ id })) } },
+  });
+}
+
+export function deleteExperience(id: string) {
+  return db.experience.delete({ where: { id } });
 }
