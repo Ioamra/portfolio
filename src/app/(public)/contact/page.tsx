@@ -1,4 +1,4 @@
-import { ClockIcon, MapPinIcon } from "lucide-react";
+import { MapPinIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { PageTransition } from "@/components/page-transition";
@@ -9,6 +9,7 @@ import { ContactSection } from "./contact-form";
 export const metadata: Metadata = {
   title: "Contact",
   description: "Me contacter pour un poste ou un projet.",
+  alternates: { canonical: "/contact" },
 };
 
 export default async function ContactPage() {
@@ -21,17 +22,13 @@ export default async function ContactPage() {
           as="h1"
           eyebrow="Contact"
           title="Me contacter"
-          description="Un poste, une question ? Écrivez-moi, je réponds rapidement."
+          description="Un poste, une question ? Écrivez-moi."
         />
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_16rem]">
           <ContactSection />
 
           <aside aria-label="Autres informations" className="space-y-5 text-sm">
-            <p className="flex items-start gap-3 text-muted-foreground">
-              <ClockIcon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-              Réponse sous 48 h ouvrées.
-            </p>
             {profile.location && (
               <p className="flex items-start gap-3 text-muted-foreground">
                 <MapPinIcon className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />

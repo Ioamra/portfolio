@@ -29,3 +29,10 @@ export function formatDateTime(date: Date) {
 export function toMonthInputValue(date: Date | null) {
   return date ? date.toISOString().slice(0, 7) : "";
 }
+
+/** Tronque un texte à `max` caractères sur une fin de mot (meta description ≈ 160). */
+export function excerpt(text: string, max = 160) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max - 1);
+  return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
+}

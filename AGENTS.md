@@ -110,6 +110,18 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 - Nommage : code en anglais, contenu, routes et libellés UI en français.
 - Accessibilité : contrastes valides dans les deux thèmes, navigation clavier, `alt` sur toutes les images.
 
+## SEO et métadonnées
+
+- `SITE_URL` (URL publique) sert à la fois à `metadataBase`, au sitemap, à robots.txt, au JSON-LD et à Better Auth.
+- Métadonnées de base dans `app/layout.tsx` (titre, description tronquée par `excerpt()`, Open Graph). **Pas** de `canonical` ni d'`openGraph.url` dans un layout : un enfant en hériterait. Chaque page déclare son `alternates.canonical`.
+- Le bloc `openGraph` d'une page remplace entièrement celui du layout (pas de fusion).
+- Images générées (`server/metadata-images.tsx`, Satori) : `opengraph-image.tsx` (site + un par projet), `icon.tsx` / `apple-icon.tsx` (initiales). Satori : `display: flex` sur tout bloc à plusieurs enfants, pas de motif de fond répété, pas de gras sans police chargée.
+- `robots.ts` exclut `/admin` et `/api` ; `sitemap.ts` liste les pages et les projets publiés (cache taggé `projects`).
+- JSON-LD « Person » sur l'accueil (`components/person-json-ld.tsx`, `<` échappé).
+- Pages d'erreur : `app/not-found.tsx` (404 globale avec en-tête et pied), `(public)/error.tsx`, `app/global-error.tsx`.
+- Mentions légales : `(public)/mentions-legales`. La durée de conservation des messages (`MESSAGE_RETENTION_MONTHS`) y est affichée **et** appliquée : purge à chaque nouveau message.
+- Accessibilité vérifiée avec `@axe-core/playwright` (WCAG 2.1 AA, thèmes clair et sombre).
+
 ## Admin
 
 - Auth : Better Auth, e-mail + mot de passe, **inscription désactivée** (`disableSignUp`). Le compte unique est créé par `scripts/create-admin.ts` (instance Better Auth dédiée où l'inscription est permise) ; relancer le script avec la même adresse change le mot de passe et ferme les sessions.

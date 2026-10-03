@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme/theme-provider";
+import { excerpt } from "@/lib/format";
+import { env } from "@/server/env";
 import { getProfile } from "@/server/services/profile.service";
 import "./globals.css";
 
@@ -19,8 +21,20 @@ export async function generateMetadata(): Promise<Metadata> {
   const siteName = `${profile.fullName} — ${profile.headline}`;
 
   return {
+    // Base des URL absolues (Open Graph, canonical, sitemap).
+    metadataBase: new URL(env.SITE_URL),
     title: { default: siteName, template: `%s | ${profile.fullName}` },
-    description: profile.bio,
+    description: excerpt(profile.bio),
+    authors: [{ name: profile.fullName, url: env.SITE_URL }],
+    // Aperçu lors d'un partage (LinkedIn, messageries…). L'image vient de opengraph-image.tsx.
+    openGraph: {
+      type: "website",
+      locale: "fr_FR",
+      siteName: profile.fullName,
+      title: siteName,
+      description: excerpt(profile.bio),
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 

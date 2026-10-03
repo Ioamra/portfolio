@@ -27,7 +27,7 @@ const db = new PrismaClient({
 // Instance dédiée au script : l'inscription y est autorisée, contrairement au site.
 const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: process.env.SITE_URL,
   database: prismaAdapter(db, { provider: "postgresql" }),
   emailAndPassword: { enabled: true, minPasswordLength: 12 },
 });

@@ -82,6 +82,17 @@ export async function listPublishedProjectSlugs() {
   return projects.map((project) => project.slug);
 }
 
+export async function listPublishedProjectsForSitemap() {
+  "use cache";
+  tagProjects();
+
+  return db.project.findMany({
+    where: { published: true },
+    select: { slug: true, updatedAt: true },
+    orderBy: publishedOrder,
+  });
+}
+
 // --- Admin (sans cache : l'admin voit l'état réel, y compris les brouillons) ---
 
 export function listProjectsForAdmin() {

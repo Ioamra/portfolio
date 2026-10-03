@@ -15,6 +15,7 @@ import { getProfile } from "@/server/services/profile.service";
 export const metadata: Metadata = {
   title: "Parcours",
   description: "Expériences professionnelles, formations et compétences.",
+  alternates: { canonical: "/parcours" },
 };
 
 export default async function CareerPage() {

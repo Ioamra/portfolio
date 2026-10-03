@@ -8,6 +8,7 @@ import { ProjectsExplorer } from "./projects-explorer";
 export const metadata: Metadata = {
   title: "Projets",
   description: "Projets professionnels et personnels.",
+  alternates: { canonical: "/projets" },
 };
 
 export default async function ProjectsPage() {

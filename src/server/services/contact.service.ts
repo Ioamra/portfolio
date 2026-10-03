@@ -17,7 +17,18 @@ export async function submitContactMessage(input: ContactInput) {
     console.error(`Échec de l'envoi du mail pour le message ${message.id}`, error);
   }
 
+  await purgeExpiredMessages();
   return message;
+}
+
+/** Durée de conservation annoncée dans les mentions légales (RGPD). */
+export const MESSAGE_RETENTION_MONTHS = 12;
+
+/** Supprime les messages plus anciens que la durée de conservation. */
+export function purgeExpiredMessages() {
+  const cutoff = new Date();
+  cutoff.setMonth(cutoff.getMonth() - MESSAGE_RETENTION_MONTHS);
+  return db.contactMessage.deleteMany({ where: { createdAt: { lt: cutoff } } });
 }
 
 // --- Admin -----------------------------------------------------------------

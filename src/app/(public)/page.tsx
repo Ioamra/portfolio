@@ -1,7 +1,9 @@
 import { ArrowRightIcon, DownloadIcon, MailIcon } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ParticleName } from "@/components/home/particle-name";
 import { PageTransition } from "@/components/page-transition";
+import { PersonJsonLd } from "@/components/person-json-ld";
 import { ProjectCard } from "@/components/project-card";
 import { SectionHeading } from "@/components/section-heading";
 import { SkillsByCategory } from "@/components/skills-by-category";
@@ -9,12 +11,21 @@ import { TiltCard } from "@/components/tilt-card";
 import { ButtonLink } from "@/components/button-link";
 import { getProfile } from "@/server/services/profile.service";
 import { listFeaturedProjects } from "@/server/services/project.service";
+import { listSkills } from "@/server/services/skill.service";
+
+// URL canonique définie par page : placée dans un layout, elle serait héritée partout.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
-  const [profile, featuredProjects] = await Promise.all([getProfile(), listFeaturedProjects()]);
+  const [profile, featuredProjects, skills] = await Promise.all([
+    getProfile(),
+    listFeaturedProjects(),
+    listSkills(),
+  ]);
 
   return (
     <PageTransition>
+      <PersonJsonLd profile={profile} skills={skills.map((skill) => skill.name)} />
       <section className="relative isolate overflow-hidden">
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid" />
         <div className="container-page pt-14 pb-16 sm:pt-20 sm:pb-24">
@@ -32,13 +43,10 @@ export default async function HomePage() {
 
           {/* L'animation d'entrée est sur un conteneur séparé : elle modifie transform,
               qui est aussi utilisé par l'inclinaison de la carte. */}
-          <div className="mt-8 max-w-3xl animate-in delay-300 duration-700 fill-mode-both fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
+          <div className="mx-auto mt-8 max-w-3xl animate-in delay-300 duration-700 fill-mode-both fade-in slide-in-from-bottom-4 motion-reduce:animate-none">
             <TiltCard className="rounded-2xl" maxTilt={4}>
               {/* Pas de backdrop-blur ici : un filtre aplatirait l'effet de relief 3D. */}
               <div className="space-y-4 rounded-2xl border bg-card/90 p-6 [transform-style:preserve-3d] sm:p-8">
-                <p className="[transform:translateZ(20px)] font-mono text-xs text-muted-foreground">
-                  {"// à propos"}
-                </p>
                 <p className="[transform:translateZ(35px)] text-xl font-medium tracking-tight sm:text-2xl">
                   {profile.headline}
                 </p>

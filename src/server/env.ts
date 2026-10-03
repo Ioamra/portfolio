@@ -25,8 +25,8 @@ const envSchema = z.object({
 
   /** Secret de chiffrement des sessions (32 caractères minimum). */
   BETTER_AUTH_SECRET: z.string().min(32),
-  /** URL publique du site, ex. https://ioamra-monchau.fr */
-  BETTER_AUTH_URL: z.url(),
+  /** URL publique du site, ex. https://ioamra-monchau.fr (SEO, sitemap, authentification). */
+  SITE_URL: z.url(),
 });
 
 export const env = envSchema.parse(process.env);

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GithubIcon, LinkedinIcon } from "@/components/icons";
 import { getProfile } from "@/server/services/profile.service";
 
@@ -11,7 +12,12 @@ export async function SiteFooter() {
   return (
     <footer className="border-t">
       <div className="container-page flex flex-col items-center justify-between gap-2 py-6 text-sm text-muted-foreground sm:flex-row">
-        <p>{profile.fullName}</p>
+        <p className="flex items-center gap-4">
+          {profile.fullName}
+          <Link href="/mentions-legales" className="transition-colors hover:text-foreground">
+            Mentions légales
+          </Link>
+        </p>
         {links.length > 0 && (
           <ul className="flex items-center gap-5">
             {links.map(({ href, label, Icon }) => (
