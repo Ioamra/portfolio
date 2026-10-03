@@ -126,7 +126,7 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 
 - Auth : Better Auth, e-mail + mot de passe, **inscription désactivée** (`disableSignUp`). Le compte unique est créé par `scripts/create-admin.ts` (instance Better Auth dédiée où l'inscription est permise) ; relancer le script avec la même adresse change le mot de passe et ferme les sessions.
 - Tables `users`, `sessions`, `accounts`, `verifications` : champs imposés par Better Auth (voir `getAuthTables()`).
-- Limite de connexion : 5 essais / minute / IP (`rateLimit.customRules`), IP lue dans `cf-connecting-ip`.
+- Limite de connexion : 5 essais / minute / IP, appliquée **dans `signInAction`** (`server/rate-limit.ts`). La limite intégrée à Better Auth (`rateLimit.customRules`) ne couvre que ses routes HTTP `/api/auth/*`, pas les appels serveur `auth.api.*`. IP lue par `server/request-ip.ts` (`cf-connecting-ip` en priorité).
 - Garde : le layout `admin/(protected)` vérifie la session dans un composant sous `<Suspense>` ; **chaque** Server Action admin commence par `await requireAdminAction()`. Pas de `proxy.ts`.
 - `export const instant = false` sur le layout protégé : l'admin est rendu à chaque requête (la nav lit `usePathname()`).
 - Lectures admin **sans cache** (`list…ForAdmin`, `get…ForAdmin`) : l'admin voit les brouillons et l'état réel. Les mutations appellent `updateTag` sur les tags publics concernés ; les messages (jamais publics) utilisent `refresh()`.
@@ -136,9 +136,19 @@ Autres scripts : `db:reset` (repart de zéro), `db:studio` (explorateur de donn�
 
 ## Tests
 
-- Playwright E2E, un fichier par page, couvrant toutes les fonctionnalités de la page.
-- Base de test dédiée, réinitialisée et seedée avant la suite.
-- Les mails sont vérifiés via l'API de Mailpit.
+```bash
+docker compose up -d     # db-test et mailpit doivent tourner
+npm run test:e2e         # ~1 min 30 : préparation, build, puis 79 tests
+npm run test:e2e:ui      # mode interactif
+npm run test:e2e:report  # rapport HTML du dernier lancement
+```
+
+- Playwright E2E, un fichier par page (`e2e/*.spec.ts`, `e2e/admin/*.spec.ts`) + `seo-securite.spec.ts` pour les routes sans page. Chaque page inclut un audit axe (WCAG 2.1 AA) via `expectNoA11yViolations()`, qui liste les éléments fautifs.
+- Le serveur testé est un **build de production** sur le port 3200, configuré par `TEST_ENV` (`e2e/config.ts`) : base `portfolio_test` (service `db-test`), stockage `storage-test/`, Mailpit. La base et le stockage de dev ne sont jamais touchés.
+- `e2e/prepare.ts` (lancé par la commande `webServer`) : `prisma migrate reset` sur la base de test (garde-fou : refuse toute URL qui ne finit pas par `/portfolio_test`), CV factice, seed, compte admin de test. Prisma bloque `migrate reset` lancé par un agent IA : il faut l'accord explicite de l'utilisateur, transmis par la variable `PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION` (jamais dans le code). Lancé par un humain, aucun blocage.
+- `workers: 1` : les tests partagent la base. Ordre : projet `public` (contenu du seed) → `admin-setup` (connexion enregistrée dans `e2e/.auth/`) → `admin` (modifie le contenu). Un échec côté public empêche les tests admin de tourner.
+- Limites par IP (contact, connexion) : chaque visiteur de test a sa propre IP via l'en-tête `cf-connecting-ip` (`newVisitorPage()`), avec une session vide explicite (sinon Playwright applique la session admin du projet).
+- Les mails sont vérifiés via l'API de Mailpit (la boîte est vidée avant chaque test de contact).
 
 ## Déploiement
 

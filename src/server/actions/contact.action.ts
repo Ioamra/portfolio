@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { z } from "zod";
 import {
   contactSchema,
@@ -9,6 +8,7 @@ import {
   type ContactInput,
 } from "@/lib/validation/contact";
 import { createRateLimiter } from "../rate-limit";
+import { getClientIp } from "../request-ip";
 import { submitContactMessage } from "../services/contact.service";
 
 export type ContactFormState =
@@ -24,17 +24,6 @@ export type ContactFormState =
 
 // 3 messages par tranche de 10 minutes et par adresse IP.
 const limiter = createRateLimiter({ limit: 3, windowMs: 10 * 60 * 1000 });
-
-async function getClientIp() {
-  const headerList = await headers();
-  // cf-connecting-ip est posé par Cloudflare (Tunnel) ; les autres pour un proxy classique.
-  return (
-    headerList.get("cf-connecting-ip") ??
-    headerList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    headerList.get("x-real-ip") ??
-    "unknown"
-  );
-}
 
 export async function sendContactMessage(
   _previousState: ContactFormState,

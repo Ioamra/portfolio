@@ -33,7 +33,9 @@ export default async function AdminMessagesPage() {
             return (
               <li
                 key={message.id}
-                className={cn("rounded-xl border p-5", !read && "border-primary/40 bg-primary/5")}
+                // Non lu : bordure gauche colorée. Pas de fond teinté, le texte grisé n'y
+                // aurait plus assez de contraste (WCAG AA).
+                className={cn("rounded-xl border p-5", !read && "border-l-4 border-l-primary")}
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>

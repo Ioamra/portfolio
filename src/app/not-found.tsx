@@ -4,10 +4,8 @@ import { ButtonLink } from "@/components/button-link";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
-export const metadata: Metadata = {
-  title: "Page introuvable",
-  robots: { index: false },
-};
+// Next ajoute lui-même <meta name="robots" content="noindex"> sur les pages 404.
+export const metadata: Metadata = { title: "Page introuvable" };
 
 // 404 globale (URL inconnue, projet inexistant…). Hors du groupe (public) :
 // l'en-tête et le pied de page sont ajoutés ici directement.
