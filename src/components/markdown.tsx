@@ -8,7 +8,12 @@ import { cn } from "@/lib/utils";
  */
 export function Markdown({ children, className }: { children: string; className?: string }) {
   return (
-    <div className={cn("prose max-w-none prose-neutral dark:prose-invert", className)}>
+    <div
+      className={cn(
+        "prose max-w-none prose-neutral dark:prose-invert prose-code:before:content-none prose-code:after:content-none",
+        className,
+      )}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{children}</ReactMarkdown>
     </div>
   );

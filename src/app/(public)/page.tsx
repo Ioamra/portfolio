@@ -104,7 +104,7 @@ export default async function HomePage() {
           <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid" />
           <h2 className="text-2xl font-semibold tracking-tight">Un poste à pourvoir ?</h2>
           <p className="mx-auto mt-2 max-w-md text-muted-foreground">
-            Je recherche un CDI de développeur. Parlons de votre projet.
+            Je recherche un CDI de développeur. Parlons-en.
           </p>
           <ButtonLink className="mt-6" size="lg" href="/contact">
             Me contacter

@@ -26,7 +26,7 @@ function ContactForm({ onReset }: { onReset: () => void }) {
       <div role="status" className="rounded-xl border bg-card p-8 text-center">
         <CheckCircle2Icon className="mx-auto size-10 text-emerald-500" aria-hidden="true" />
         <h2 className="mt-4 text-xl font-semibold">Message envoyé</h2>
-        <p className="mt-2 text-muted-foreground">Merci ! Je vous réponds au plus vite.</p>
+        <p className="mt-2 text-muted-foreground">Merci, votre message a bien été envoyé.</p>
         <Button variant="outline" className="mt-6" onClick={onReset}>
           Envoyer un autre message
         </Button>

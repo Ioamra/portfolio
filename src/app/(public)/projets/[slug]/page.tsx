@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GithubIcon } from "@/components/icons";
 import { Markdown } from "@/components/markdown";
+import { ProjectGallery } from "@/components/project-gallery";
 import { SkillList } from "@/components/skill-list";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/button-link";
@@ -42,8 +43,6 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
   const { slug } = await params;
   const project = await getPublishedProjectBySlug(slug);
   if (!project) notFound();
-
-  const [cover, ...gallery] = project.images;
 
   return (
     <PageTransition>
@@ -92,30 +91,19 @@ export default async function ProjectPage({ params }: PageProps<"/projets/[slug]
           )}
         </header>
 
-        {cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={mediaUrl(cover.path)}
-            alt={cover.alt}
-            className="mt-10 w-full rounded-xl border"
-          />
+        {project.images.length > 0 && (
+          <div className="mt-10">
+            <ProjectGallery
+              images={project.images.map((image) => ({
+                id: image.id,
+                src: mediaUrl(image.path),
+                alt: image.alt,
+              }))}
+            />
+          </div>
         )}
 
         <Markdown className="mt-10">{project.content}</Markdown>
-
-        {gallery.length > 0 && (
-          <section className="mt-12 grid gap-4 sm:grid-cols-2" aria-label="Captures d'écran">
-            {gallery.map((image) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                key={image.id}
-                src={mediaUrl(image.path)}
-                alt={image.alt}
-                className="rounded-lg border"
-              />
-            ))}
-          </section>
-        )}
       </article>
     </PageTransition>
   );
