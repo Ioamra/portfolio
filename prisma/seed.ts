@@ -1,7 +1,11 @@
 /**
  * Données initiales du site, reprises du CV (modifiables ensuite via l'admin).
- * Idempotent : vide les tables de contenu puis les remplit à nouveau.
- * Lancement : npm run db:seed
+ * Vide les tables de contenu puis les remplit à nouveau.
+ *
+ *   npm run db:seed                  dev : réinitialise le contenu
+ *   tsx prisma/seed.ts --if-empty    prod (au démarrage) : uniquement si la base est vide
+ *
+ * En production (NODE_ENV=production), refuse d'effacer une base qui contient du contenu.
  */
 import "dotenv/config";
 import { existsSync } from "node:fs";
@@ -32,6 +36,15 @@ function connect(...names: string[]) {
 }
 
 async function main() {
+  const hasContent = (await db.profile.count()) > 0;
+  if (hasContent && process.argv.includes("--if-empty")) {
+    console.log("Contenu déjà présent : seed ignoré.");
+    return;
+  }
+  if (hasContent && process.env.NODE_ENV === "production") {
+    throw new Error("Refus : la base de production contient déjà du contenu (le seed l'effacerait).");
+  }
+
   await db.$transaction([
     db.projectImage.deleteMany(),
     db.project.deleteMany(),

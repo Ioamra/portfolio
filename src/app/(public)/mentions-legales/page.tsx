@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { analyticsEnabled } from "@/components/analytics";
 import { PageTransition } from "@/components/page-transition";
 import { SectionHeading } from "@/components/section-heading";
 import { MESSAGE_RETENTION_MONTHS } from "@/server/services/contact.service";
@@ -28,7 +29,11 @@ export default async function LegalNoticePage() {
           </p>
 
           <h2>Hébergement</h2>
-          <p>Le site est hébergé sur un serveur personnel de l&apos;éditeur, situé en France.</p>
+          <p>
+            Le site est hébergé sur un serveur personnel de l&apos;éditeur, situé en France. Le
+            trafic transite par le réseau de Cloudflare, Inc. (101 Townsend St, San Francisco, CA
+            94107, États-Unis), qui assure la connexion sécurisée (HTTPS) au serveur.
+          </p>
 
           <h2>Propriété intellectuelle</h2>
           <p>
@@ -86,6 +91,19 @@ export default async function LegalNoticePage() {
             (clair ou sombre) est enregistrée uniquement dans votre navigateur. Un cookie de session
             est utilisé seulement pour l&apos;espace d&apos;administration réservé à l&apos;éditeur.
           </p>
+
+          {analyticsEnabled && (
+            <>
+              <h2>Mesure d&apos;audience</h2>
+              <p>
+                La fréquentation du site est mesurée avec Umami, un outil hébergé sur le même
+                serveur que le site. Il ne dépose aucun cookie, ne collecte aucune donnée
+                permettant de vous identifier et ne transmet rien à des tiers : seules des
+                statistiques globales sont conservées (pages vues, provenance, type
+                d&apos;appareil).
+              </p>
+            </>
+          )}
         </div>
       </div>
     </PageTransition>

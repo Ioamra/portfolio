@@ -22,7 +22,7 @@ Le repo GitHub est public et sert lui-même de démonstration technique : la qua
 | Auth | Better Auth, un seul compte admin |
 | Mail | Nodemailer via SMTP externe (Brevo en prod, Mailpit en dev/test) |
 | Tests | Playwright E2E, un fichier de spec par page |
-| Stats de visite | Umami auto-hébergé (script externe, rien dans le code métier) |
+| Stats de visite | Umami auto-hébergé (script sur les pages publiques, si configuré) |
 | Package manager | npm |
 
 ## Architecture
@@ -152,8 +152,17 @@ npm run test:e2e:report  # rapport HTML du dernier lancement
 
 ## Déploiement
 
-- Serveur perso sous Debian, tout en Docker Compose : app Next (build `standalone`), PostgreSQL, Umami.
-- Exposition via Cloudflare Tunnel (aucun port ouvert sur la box, HTTPS géré).
+Vue d'ensemble dans le README. Un guide pas à pas détaillé existe en local (`docs/DEPLOIEMENT.md`, ignoré par Git : il contient des informations personnelles).
+
+- Serveur perso sous Debian, `docker-compose.prod.yml` : `app` (Next.js), `db` (PostgreSQL), `umami` + `umami-db`, `cloudflared`. **Aucun port publié** : tout passe par le tunnel Cloudflare (connexion sortante), routes `domaine → app:3000` et `stats.domaine → umami:3000`.
+- Commandes : `docker compose --env-file .env.production -f docker-compose.prod.yml …` (alias `dc` dans le guide). Secrets dans `.env.production` sur le serveur (modèle : `.env.production.example`).
+- **Le build Next.js se fait au démarrage du conteneur** (`docker/entrypoint.sh`), pas dans `docker build` : Cache Components pré-rend avec la base, inaccessible pendant la construction de l'image. Séquence : `prisma migrate deploy` → `seed --if-empty` → `next build` si `.next/BUILD_ID` absent → `next start`. Un redémarrage réutilise le build ; une nouvelle version demande `up -d --build --force-recreate app`.
+- Variables d'environnement lues au build (ex. Umami) : changer leur valeur demande `--force-recreate app`.
+- Variables facultatives : une valeur vide (`VAR=""`) compte comme absente (`optional()` dans `env.ts`).
+- Le seed refuse d'effacer une base qui contient du contenu quand `NODE_ENV=production` ; `--if-empty` ne fait rien si un profil existe.
+- `prisma.config.ts` exige `DATABASE_URL` même pour `prisma generate` : le Dockerfile passe une URL factice à `npm ci`.
+- Umami (`components/analytics.tsx`) : script sur les pages publiques seulement, si `UMAMI_SCRIPT_URL` et `UMAMI_WEBSITE_ID` sont définis ; section « Mesure d'audience » des mentions légales affichée dans ce cas.
+- Sauvegardes : `scripts/backup.sh` (pg_dump des deux bases + archive du stockage, rotation 14 jours), via cron.
 - Pas de CI/CD ni de déploiement automatique.
 
 ## Git

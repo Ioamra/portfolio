@@ -1,3 +1,4 @@
+import { Analytics } from "@/components/analytics";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
@@ -15,6 +16,8 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <SiteFooter />
+      {/* Uniquement sur les pages publiques : les visites de l'admin ne sont pas comptées. */}
+      <Analytics />
     </>
   );
 }

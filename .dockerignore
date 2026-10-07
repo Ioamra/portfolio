@@ -1,0 +1,19 @@
+# Fichiers exclus de l'image Docker (et du contexte envoyé au build).
+.git
+node_modules
+.next
+src/generated
+
+# Secrets et données locales : jamais dans l'image.
+.env*
+!.env.example
+storage
+storage-test
+
+# Tests et outils de développement
+e2e
+test-results
+playwright-report
+playwright.config.ts
+.claude
+*.tmp.mjs
