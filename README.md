@@ -117,5 +117,8 @@ Les sauvegardes (bases et fichiers) sont assurées par `scripts/backup.sh`, lanc
 Pour en garder une copie hors du serveur, depuis un PC Windows (cmd) :
 
 ```
-scp -r <utilisateur>@<ip-du-serveur>:/srv/backups/portfolio %USERPROFILE%\Documents\backups-portfolio
+mkdir %USERPROFILE%\Documents\backups-portfolio
+scp <utilisateur>@<ip-du-serveur>:/srv/backups/portfolio/* %USERPROFILE%\Documents\backups-portfolio\
 ```
+
+Seule la seconde commande est à relancer ensuite : elle ajoute les nouvelles sauvegardes au dossier.
