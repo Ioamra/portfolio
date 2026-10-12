@@ -114,3 +114,8 @@ docker compose --env-file .env.production -f docker-compose.prod.yml up -d --bui
 ```
 
 Les sauvegardes (bases et fichiers) sont assurées par `scripts/backup.sh`, lancé chaque nuit.
+Pour en garder une copie hors du serveur, depuis un PC Windows (cmd) :
+
+```
+scp -r <utilisateur>@<ip-du-serveur>:/srv/backups/portfolio %USERPROFILE%\Documents\backups-portfolio
+```

@@ -152,7 +152,7 @@ npm run test:e2e:report  # rapport HTML du dernier lancement
 
 ## Déploiement
 
-Vue d'ensemble dans le README. Un guide pas à pas détaillé existe en local (`docs/DEPLOIEMENT.md`, ignoré par Git : il contient des informations personnelles).
+Vue d'ensemble dans le README.
 
 - Serveur perso sous Debian, `docker-compose.prod.yml` : `app` (Next.js), `db` (PostgreSQL), `umami` + `umami-db`, `cloudflared`. **Aucun port publié** : tout passe par le tunnel Cloudflare (connexion sortante), routes `domaine → app:3000` et `stats.domaine → umami:3000`. Le SSH de l'hôte passe aussi par le tunnel (`ssh.domaine → host.docker.internal:22`, via `extra_hosts`), protégé par Cloudflare Access : ne jamais faire `down` sur `cloudflared` à distance.
 - Commandes : `docker compose --env-file .env.production -f docker-compose.prod.yml …` (alias `dc` dans le guide). Secrets dans `.env.production` sur le serveur (modèle : `.env.production.example`).
