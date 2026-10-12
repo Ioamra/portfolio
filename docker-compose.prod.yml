@@ -68,6 +68,9 @@ services:
     command: tunnel --no-autoupdate run
     environment:
       TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    # Accès au SSH de la machine hôte (route ssh.domaine → ssh://host.docker.internal:22).
+    extra_hosts:
+      - host.docker.internal:host-gateway
     depends_on:
       - app
       - umami
