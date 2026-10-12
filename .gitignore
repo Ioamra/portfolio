@@ -53,3 +53,6 @@ next-env.d.ts
 /storage-test/
 e2e/.auth/
 
+
+# script personnel de copie des sauvegardes (contient l'adresse du serveur)
+/backup-portfolio.cmd
